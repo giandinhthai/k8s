@@ -1,0 +1,25 @@
+1. Get the application URLs by running these commands:
+
+{{- if .Values.hello.enabled }}
+{{- if eq .Values.hello.service.type "NodePort" }}
+# Hello App (NodePort)
+export HELLO_NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "hello-world-app.fullname" . }}-hello)
+export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+echo "Hello App: http://$NODE_IP:$HELLO_NODE_PORT"
+{{- else if eq .Values.hello.service.type "ClusterIP" }}
+# Hello App (ClusterIP)
+kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.clusterIP}" services {{ include "hello-world-app.fullname" . }}-hello
+{{- end }}
+{{- end }}
+
+{{- if .Values.greet.enabled }}
+{{- if eq .Values.greet.service.type "NodePort" }}
+# Greet App (NodePort)
+export GREET_NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "hello-world-app.fullname" . }}-greet)
+export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+echo "Greet App: http://$NODE_IP:$GREET_NODE_PORT/greet"
+{{- else if eq .Values.greet.service.type "ClusterIP" }}
+# Greet App (ClusterIP)
+kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.clusterIP}" services {{ include "hello-world-app.fullname" . }}-greet
+{{- end }}
+{{- end }}

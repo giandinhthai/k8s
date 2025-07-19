@@ -1,0 +1,61 @@
+{{- if .Values.greet.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "hello-world-app.fullname" . }}-greet
+  labels:
+    {{- include "hello-world-app.labels" . | nindent 4 }}
+    app: greet-app
+spec:
+  replicas: {{ .Values.greet.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "hello-world-app.selectorLabels" . | nindent 6 }}
+      app: greet-app
+  template:
+    metadata:
+      labels:
+        {{- include "hello-world-app.selectorLabels" . | nindent 8 }}
+        app: greet-app
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "hello-world-app.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: greet-app
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.greet.image.repository }}:{{ .Values.greet.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.greet.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.greet.service.port }}
+              protocol: TCP
+          env:
+            - name: ENV
+              value: {{ .Values.global.environment | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.greet.config.logLevel | quote }}
+            - name: HELLO_SERVICE_NAME
+              value: {{ include "hello-world-app.fullname" . }}-hello
+            - name: HELLO_SERVICE_PORT
+              value: {{ .Values.greet.config.helloServicePort | quote }}
+          livenessProbe:
+            httpGet:
+              path: /greet
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /greet
+              port: http
+          resources:
+            {{- toYaml .Values.greet.resources | nindent 12 }}
+{{- end }} 

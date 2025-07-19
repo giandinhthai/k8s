@@ -18,6 +18,13 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 8081
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
           env:
             - name: HELLO_SERVICE_NAME
               valueFrom:

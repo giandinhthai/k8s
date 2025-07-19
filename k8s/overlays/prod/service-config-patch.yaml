@@ -3,6 +3,6 @@ kind: ConfigMap
 metadata:
   name: service-config
 data:
-  hello-service-name: "prod-hello-service"
+  hello-service-name: "hello-service"
   log-level: "info"
   env: "prod" 

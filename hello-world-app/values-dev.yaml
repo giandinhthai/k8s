@@ -1,0 +1,56 @@
+# Dev environment values
+global:
+  environment: "dev"
+  logLevel: "debug"
+
+hello:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: hello-app
+    tag: "dev"
+  
+  service:
+    type: NodePort
+    port: 8080
+    nodePort: 30001
+  
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  
+  config:
+    message: "Hello from Dev ConfigMap!"
+    logLevel: "debug"
+  
+  secret:
+    apiKey: "dev-secret-api-key"
+
+greet:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: greet-app
+    tag: "dev"
+  
+  service:
+    type: NodePort
+    port: 8081
+    nodePort: 30002
+  
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  
+  config:
+    logLevel: "debug"
+    helloServiceName: "hello-world-app-hello"
+    helloServicePort: "8080" 

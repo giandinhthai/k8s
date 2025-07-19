@@ -1,0 +1,10 @@
+{{- if .Values.hello.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "hello-world-app.fullname" . }}-hello-config
+  labels:
+    {{- include "hello-world-app.labels" . | nindent 4 }}
+data:
+  APP_MESSAGE: {{ .Values.hello.config.message | quote }}
+{{- end }} 

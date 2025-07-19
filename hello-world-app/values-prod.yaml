@@ -1,0 +1,56 @@
+# Prod environment values
+global:
+  environment: "prod"
+  logLevel: "info"
+
+hello:
+  enabled: true
+  replicaCount: 3
+  image:
+    repository: hello-app
+    tag: "prod"
+  
+  service:
+    type: NodePort
+    port: 8080
+    nodePort: 30001
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  
+  config:
+    message: "Hello from Prod ConfigMap!"
+    logLevel: "info"
+  
+  secret:
+    apiKey: "prod-secret-api-key"
+
+greet:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: greet-app
+    tag: "prod"
+  
+  service:
+    type: NodePort
+    port: 8081
+    nodePort: 30002
+  
+  resources:
+    limits:
+      cpu: 300m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  
+  config:
+    logLevel: "info"
+    helloServiceName: "hello-world-app-hello"
+    helloServicePort: "8080" 

@@ -1,6 +1,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+namespace: prod
+
 resources:
   - ../../base
 
@@ -9,7 +11,6 @@ patches:
   - path: greet-patch.yaml
   - path: service-config-patch.yaml
 
-namePrefix: prod-
 images:
   - name: hello-app
     newName: hello-app

@@ -1,0 +1,22 @@
+{{- if .Values.greet.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "hello-world-app.fullname" . }}-greet
+  labels:
+    {{- include "hello-world-app.labels" . | nindent 4 }}
+    app: greet-app
+spec:
+  type: {{ .Values.greet.service.type }}
+  ports:
+    - port: {{ .Values.greet.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+      {{- if eq .Values.greet.service.type "NodePort" }}
+      nodePort: {{ .Values.greet.service.nodePort }}
+      {{- end }}
+  selector:
+    {{- include "hello-world-app.selectorLabels" . | nindent 4 }}
+    app: greet-app
+{{- end }} 

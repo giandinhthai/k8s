@@ -1,0 +1,114 @@
+# Default values for hello-world-app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Global configuration
+global:
+  environment: "dev"
+  logLevel: "info"
+
+# Hello App Configuration
+hello:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: hello-app
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  
+  service:
+    type: NodePort
+    port: 8080
+    nodePort: 30001
+  
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  
+  config:
+    message: "Hello from ConfigMap!"
+    logLevel: "info"
+  
+  secret:
+    apiKey: "super-secret-api-key"
+
+# Greet App Configuration
+greet:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: greet-app
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  
+  service:
+    type: NodePort
+    port: 8081
+    nodePort: 30002
+  
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  
+  config:
+    logLevel: "info"
+    # Service discovery configuration
+    helloServiceName: "hello-service"
+    helloServicePort: "8080"
+
+# Service Account
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+# Pod Annotations and Labels
+podAnnotations: {}
+podLabels: {}
+
+# Security Context
+podSecurityContext: {}
+securityContext: {}
+
+# Ingress (disabled by default)
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+# Health Checks
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# Autoscaling
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+# Node Selector, Tolerations, Affinity
+nodeSelector: {}
+tolerations: []
+affinity: {}
