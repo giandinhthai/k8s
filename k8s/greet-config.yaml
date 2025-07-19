@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: greet-config
+data:
+  TARGET_SERVICE_HOST: "hello-service"
+  TARGET_SERVICE_PORT: "8080" 
