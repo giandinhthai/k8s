@@ -1,6 +1,6 @@
 # Microservices Demo với Kubernetes
 
-Dự án demo microservices sử dụng Go và Kubernetes, bao gồm 2 services:
+Dự án demo microservices sử dụng Go và Kubernetes, bao gồm 2 services với Kustomize để quản lý multi-environment.
 
 ## 🏗️ Cấu trúc dự án
 
@@ -17,13 +17,28 @@ hello-world-app/
 │   ├── main.go
 │   ├── Dockerfile
 │   └── go.mod
-└── k8s/               # Kubernetes manifests
-    ├── hello-config.yaml      # ConfigMap cho hello-app
-    ├── hello-secret.yaml      # Secret cho hello-app
-    ├── hello-deployment.yaml  # Deployment với env vars
-    ├── hello-service.yaml     # Service
-    ├── greet-deployment.yaml
-    └── greet-service.yaml
+└── k8s/               # Kubernetes manifests với Kustomize
+    ├── base/          # Base manifests dùng chung
+    │   ├── hello/     # Hello service base
+    │   │   ├── deployment.yaml
+    │   │   ├── service.yaml
+    │   │   ├── config.yaml
+    │   │   ├── secret.yaml
+    │   │   └── kustomization.yaml
+    │   ├── greet/     # Greet service base
+    │   │   ├── deployment.yaml
+    │   │   ├── service.yaml
+    │   │   └── kustomization.yaml
+    │   └── kustomization.yaml
+    └── overlays/      # Environment-specific overlays
+        ├── dev/       # Development environment
+        │   ├── kustomization.yaml
+        │   ├── hello-patch.yaml
+        │   └── greet-patch.yaml
+        └── prod/      # Production environment
+            ├── kustomization.yaml
+            ├── hello-patch.yaml
+            └── greet-patch.yaml
 ```
 
 ## 🚀 Các Services
@@ -63,50 +78,41 @@ if k8sHost == "" || k8sPort == "" {
 targetServiceURL := fmt.Sprintf("http://%s:%s", k8sHost, k8sPort)
 ```
 
-### Các cách khác (cho tham khảo):
-
-#### Cách 1: DNS Name trực tiếp
-```go
-// Sử dụng DNS name trực tiếp
-targetServiceURL := "http://hello-service:8080"
-```
-
-#### Cách 2: ConfigMap (Cho trường hợp phức tạp)
-```yaml
-# k8s/greet-config.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: greet-config
-data:
-  TARGET_SERVICE_HOST: "hello-service"
-  TARGET_SERVICE_PORT: "8080"
-```
-
 ## 🛠️ Build và Deploy
+
+### Cách 1: Sử dụng Kustomize (Khuyến nghị)
 
 ```bash
 # Cấu hình Docker environment cho minikube
 eval $(minikube docker-env)
 
 # Build images
-docker build -t hello-go:latest ./hello-app
-docker build -t greet-app:latest ./greet-app
+make build
 
-# Deploy to Kubernetes
-kubectl apply -f k8s/
+# Deploy to dev environment
+make deploy-dev
 
-# Kiểm tra trạng thái
-kubectl get pods
-kubectl get services
+# Deploy to prod environment  
+make deploy-prod
+
+# Preview manifests trước khi apply
+make preview-dev
+make preview-prod
+```
+
+### Cách 2: Legacy deployment (Cũ)
+
+```bash
+# Deploy to Kubernetes (legacy)
+make deploy
 ```
 
 ## 🌐 Test Services
 
 ```bash
 # Lấy URL services
-minikube service hello-service --url
-minikube service greet-service --url
+minikube service dev-hello-service --url
+minikube service dev-greet-service --url
 
 # Test endpoints
 curl http://192.168.49.2:30001
@@ -120,6 +126,42 @@ curl http://192.168.49.2:30002/greet
 - Sử dụng Kubernetes Service Discovery để resolve hostname
 - **Không hardcode IP** - sử dụng env vars tự động
 
+## 📋 Kustomize Commands
+
+```bash
+# Preview dev environment
+kustomize build k8s/overlays/dev
+
+# Preview prod environment
+kustomize build k8s/overlays/prod
+
+# Apply dev environment
+kubectl apply -k k8s/overlays/dev
+
+# Apply prod environment
+kubectl apply -k k8s/overlays/prod
+
+# Delete dev environment
+kubectl delete -k k8s/overlays/dev
+
+# Delete prod environment
+kubectl delete -k k8s/overlays/prod
+```
+
+## 🎯 Environment Differences
+
+### Development Environment
+- **Replicas**: hello-app: 2, greet-app: 1
+- **Image tags**: `:dev`
+- **Log level**: `debug`
+- **Resources**: Default (no limits)
+
+### Production Environment
+- **Replicas**: hello-app: 3, greet-app: 2
+- **Image tags**: `:prod`
+- **Log level**: `info`
+- **Resources**: CPU/Memory limits set
+
 ## 📋 Best Practices
 
 ### ✅ Đúng chuẩn K8s:
@@ -128,6 +170,7 @@ curl http://192.168.49.2:30002/greet
 - ConfigMap cho configuration data
 - Secret cho sensitive data
 - Fallback về DNS name cho development
+- Kustomize cho multi-environment management
 
 ### ❌ Tránh:
 - Hardcode IP addresses trong code
@@ -139,4 +182,5 @@ curl http://192.168.49.2:30002/greet
 - Docker
 - Minikube
 - kubectl
-- Go 1.22+ 
+- Go 1.22+
+- Kustomize (optional, for advanced usage) 

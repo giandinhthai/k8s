@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-app
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+        - name: hello-app
+          env:
+            - name: ENV
+              value: "prod"
+            - name: LOG_LEVEL
+              value: "info"
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "100m"
+              memory: "128Mi" 

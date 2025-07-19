@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-config
+data:
+  # Service discovery configuration
+  hello-service-name: "hello-service"
+  hello-service-port: "8080"
+  greet-service-name: "greet-service"
+  greet-service-port: "8081"
+  
+  # Common configuration
+  log-level: "info"
+  env: "base" 

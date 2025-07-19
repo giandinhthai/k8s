@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greet-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: greet-app
+  template:
+    metadata:
+      labels:
+        app: greet-app
+    spec:
+      containers:
+        - name: greet-app
+          image: greet-app:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8081
+          env:
+            - name: HELLO_SERVICE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: service-config
+                  key: hello-service-name
+            - name: HELLO_SERVICE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: service-config
+                  key: hello-service-port
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: service-config
+                  key: log-level
+            - name: ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: service-config
+                  key: env 

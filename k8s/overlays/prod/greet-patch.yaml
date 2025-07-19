@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greet-app
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+        - name: greet-app
+          resources:
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+            requests:
+              cpu: "50m"
+              memory: "64Mi" 
